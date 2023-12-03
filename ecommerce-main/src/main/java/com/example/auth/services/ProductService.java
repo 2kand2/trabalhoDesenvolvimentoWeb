@@ -1,8 +1,6 @@
 package com.example.auth.services;
 
-import com.example.auth.domain.product.Product;
-import com.example.auth.domain.product.ProductRequestDTO;
-import com.example.auth.domain.product.ProductResponseDTO;
+import com.example.auth.domain.product.*;
 import com.example.auth.repositories.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +25,9 @@ public class ProductService {
         return repository.findById(id);
     }
 
-    public List<Product> getProductByName(String name){
-        System.out.println(name);
-        return repository.findByNameContainingIgnoreCase(name);
+    public List<Product> getProductByName(ProductSearchNameRequestDTO requestBody){
+        System.out.println(requestBody.name());
+        return repository.findByNameContainingIgnoreCase(requestBody.name());
     }
 
     public void createProduct(ProductRequestDTO body) {
@@ -60,7 +58,25 @@ public class ProductService {
             repository.save(existingProduct);
     }
 
+    public void updateProductQtd(String id , ProductUpdateQtdDTO productUpdateQtdDTO) {
+
+        Product existingProduct = repository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("Product not found"));
+
+        if(productUpdateQtdDTO.qtd() > 0){
+            existingProduct.setQtd(productUpdateQtdDTO.qtd());
+        }
+
+        repository.save(existingProduct);
+    }
+
+
+
     public void deleteProductById(String id){
         repository.deleteById(id);
+    }
+
+    public boolean existsById(String id) {
+        return repository.existsById(id);
     }
 }

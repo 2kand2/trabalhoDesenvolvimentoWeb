@@ -2,6 +2,8 @@ package com.example.auth.controllers;
 
 import com.example.auth.domain.product.Product;
 import com.example.auth.domain.product.ProductRequestDTO;
+import com.example.auth.domain.product.ProductSearchNameRequestDTO;
+import com.example.auth.domain.product.ProductUpdateQtdDTO;
 import com.example.auth.repositories.ProductRepository;
 import com.example.auth.services.ProductService;
 import jakarta.validation.Valid;
@@ -42,8 +44,9 @@ public class ProductController {
 
 
     @GetMapping("/search")
-    public ResponseEntity<List<Product>> getProductByName(@RequestBody String name) {
+    public ResponseEntity<List<Product>> getProductByName(@RequestBody ProductSearchNameRequestDTO name) {
         List<Product> products = productService.getProductByName(name);
+        System.out.println(products);
         return ResponseEntity.ok(products);
     }
 
@@ -58,9 +61,19 @@ public class ProductController {
         return new ResponseEntity<>("produto atualizado com sucesso", HttpStatus.OK);
     }
 
+    @PatchMapping("/{id}/quantity")
+    public ResponseEntity<?> updateQtdProduct(@PathVariable String id, @RequestBody ProductUpdateQtdDTO qtd){
+        productService.updateProductQtd(id, qtd);
+        return new ResponseEntity<>("quantidade atualizada com sucesso", HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProductByID(@PathVariable String id){
-        productService.deleteProductById(id);
-        return new ResponseEntity<>("Produto removido com sucesso", HttpStatus.OK);
+        if (productService.existsById(id)) {
+            productService.deleteProductById(id);
+            return new ResponseEntity<>("Produto removido com sucesso", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Produto não encontrado", HttpStatus.NOT_FOUND);
+        }
     }
 }
